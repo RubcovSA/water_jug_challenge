@@ -20,8 +20,8 @@ query getPath($pathInput: PathInput!) {
   getPath(pathInput: $pathInput) {
     bestSolution {
       x
-    	y
-    	description
+      y
+      description
     }
     worstSolution {
       x

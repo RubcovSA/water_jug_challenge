@@ -1,138 +1,93 @@
-import { Injectable } from '@nestjs/common'
-
-enum Action {
-  'Pour X to Y',
-  'Pour Y to X',
-  'Make X Full',
-  'Make Y Full',
-  'Empty X',
-  'Empty Y',
-}
+import { Injectable, Logger } from '@nestjs/common'
 
 class TraceItem {
   x: number
   y: number
   description: string
 }
-
-type QItem = {
-  x: number
-  y: number
-  dir: Action
-  trace?: TraceItem[]
+class Paths {
+  bestSolution: TraceItem[]
+  worstSolution: TraceItem[]
 }
 
 @Injectable()
 export class PathService {
-  async findBestPath(x: number, y: number, z: number): Promise<TraceItem[]> {
-    return PathService.calculate(x, y, z)
+  constructor(readonly logger: Logger) {}
+
+  async findPaths(x: number, y: number, z: number): Promise<Paths> {
+    return PathService.minSteps(x, y, z)
   }
-  async findWorstPath(x: number, y: number, z: number): Promise<TraceItem[]> {
-    return PathService.calculate(x, y, z)
+
+  private static gcd(a, b) {
+    if (b == 0) return a
+
+    return PathService.gcd(b, a % b)
   }
 
-  private static calculate(X: number, Y: number, Z: number): TraceItem[] {
-    const pastStates = []
-    const checkPastState = (x, y) => {
-      const obj = JSON.stringify({ x, y })
-      return pastStates.some((e) => e == obj)
-    }
+  private static pour(fromCap, toCap, d) {
+    let from = fromCap
+    let to = 0
 
-    const setPastState = (x, y) => {
-      pastStates.push(JSON.stringify({ x, y }))
-    }
+    const trace = [{ x: from, y: to, description: 'Fill X' }]
 
-    const cycles = 1000
-    const Q: QItem[] = [
-      { x: 0, y: 0, dir: 2 },
-      { x: 0, y: 0, dir: 3 },
-    ]
+    while (from != d && to != d) {
+      const temp = Math.min(from, toCap - to)
 
-    let result
+      to += temp
+      from -= temp
 
-    const pour = ({ x, y, dir = 0, trace = [] }: QItem) => {
-      switch (dir) {
-        case 0:
-          if (y < Y && x > 0) {
-            y = y + x
-            if (y > Y) {
-              const reminder = y - Y
-              y = Y
-              x = reminder
-            } else {
-              x = 0
-            }
-          } else return false
-          break
+      trace.push({ x: from, y: to, description: 'Pour X to Y' })
 
-        case 1:
-          if (x < X && y > 0) {
-            x = y + x
-            if (x > X) {
-              const reminder = x - X
-              x = X
-              y = reminder
-            } else {
-              y = 0
-            }
-          } else return false
-          break
-        case 2:
-          if (x == X) return false
-          x = X
-          break
-        case 3:
-          if (y == Y) return false
-          y = Y
-          break
-        case 4:
-          if (x == 0) return false
-          x = 0
-          break
-        case 5:
-          if (y == 0) return false
-          y = 0
-          break
+      if (from == d || to == d) break
+
+      if (from == 0) {
+        from = fromCap
+        trace.push({ x: from, y: to, description: 'Fill X' })
       }
 
-      trace.push({ description: Action[dir], x, y })
+      if (to == toCap) {
+        to = 0
+        trace.push({ x: from, y: to, description: 'Empty Y' })
+      }
+    }
+    return trace
+  }
 
-      if (x == Z || y == Z) {
-        result = { jug: x == Z ? 'X' : 'Y', trace }
-        return true
+  private static minSteps(m, n, d) {
+    const max = Math.max(n, m)
+    const min = Math.min(n, m)
+    if (d > max || d % PathService.gcd(max, min) != 0) {
+      return {
+        bestSolution: null,
+        worstSolution: null,
+      }
+    }
+
+    const straight = PathService.pour(m, n, d)
+    const reverted = PathService.pour(n, m, d).map(({ x, y, description }) => {
+      if (description === 'Pour X to Y') {
+        description = 'Pour Y to X'
+      } else if (description.includes('X')) {
+        description = description.replace('X', 'Y')
       } else {
-        return { x, y, dir, trace: [...trace] }
+        description = description.replace('Y', 'X')
+      }
+      return {
+        x: y,
+        y: x,
+        description,
+      }
+    })
+
+    if (straight.length < reverted.length) {
+      return {
+        bestSolution: straight,
+        worstSolution: reverted,
       }
     }
-
-    do {
-      const firstElement = JSON.parse(JSON.stringify(Q.splice(0, 1)))
-      const newState = pour(firstElement[0])
-
-      if (newState === true) {
-        break
-      }
-
-      if (newState) {
-        if (checkPastState(newState.x, newState.y)) {
-          continue
-        } else {
-          setPastState(newState.x, newState.y)
-        }
-        const trace = [...newState.trace]
-        Q.push({ ...newState, trace, dir: 0 })
-        Q.push({ ...newState, trace, dir: 1 })
-        Q.push({ ...newState, trace, dir: 2 })
-        Q.push({ ...newState, trace, dir: 3 })
-        Q.push({ ...newState, trace, dir: 4 })
-        Q.push({ ...newState, trace, dir: 5 })
-      }
-    } while (Q.length && Q.length < cycles)
-
-    if (result) {
-      return result.trace
-    } else {
-      return null
+    return {
+      bestSolution: reverted,
+      worstSolution: straight,
     }
   }
 }

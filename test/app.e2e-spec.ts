@@ -25,7 +25,7 @@ describe('App', () => {
       {
         x: 0,
         y: 7,
-        description: 'Make Y Full',
+        description: 'Fill Y',
       },
     ])
   })
@@ -36,7 +36,7 @@ describe('App', () => {
       {
         x: 1,
         y: 0,
-        description: 'Make X Full',
+        description: 'Fill X',
       },
     ])
   })
@@ -47,7 +47,7 @@ describe('App', () => {
       {
         x: 1,
         y: 0,
-        description: 'Make X Full',
+        description: 'Fill X',
       },
       {
         x: 0,
@@ -57,7 +57,7 @@ describe('App', () => {
       {
         x: 1,
         y: 1,
-        description: 'Make X Full',
+        description: 'Fill X',
       },
       {
         x: 0,
@@ -67,7 +67,7 @@ describe('App', () => {
       {
         x: 1,
         y: 2,
-        description: 'Make X Full',
+        description: 'Fill X',
       },
       {
         x: 0,
@@ -83,7 +83,7 @@ describe('App', () => {
       {
         x: 0,
         y: 1,
-        description: 'Make Y Full',
+        description: 'Fill Y',
       },
       {
         x: 1,
@@ -93,7 +93,7 @@ describe('App', () => {
       {
         x: 1,
         y: 1,
-        description: 'Make Y Full',
+        description: 'Fill Y',
       },
       {
         x: 2,
@@ -103,7 +103,7 @@ describe('App', () => {
       {
         x: 2,
         y: 1,
-        description: 'Make Y Full',
+        description: 'Fill Y',
       },
       {
         x: 3,

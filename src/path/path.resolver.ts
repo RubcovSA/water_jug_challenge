@@ -5,24 +5,13 @@ import { PathInputDto } from './dto/pathInputDto'
 
 @Resolver(() => PathsDto)
 export class PathResolver {
-  constructor(private jugService: PathService) {}
+  constructor(private pathService: PathService) {}
 
   @Query(() => PathsDto, { nullable: true })
   async getPath(
     @Args({ name: 'pathInput', type: () => PathInputDto })
     pathInput: PathInputDto,
   ): Promise<PathsDto> {
-    return {
-      bestSolution: await this.jugService.findBestPath(
-        pathInput.x,
-        pathInput.y,
-        pathInput.z,
-      ),
-      worstSolution: await this.jugService.findWorstPath(
-        pathInput.x,
-        pathInput.y,
-        pathInput.z,
-      ),
-    }
+    return this.pathService.findPaths(pathInput.x, pathInput.y, pathInput.z)
   }
 }

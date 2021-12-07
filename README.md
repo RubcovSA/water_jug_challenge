@@ -13,8 +13,8 @@ $ yarn
 $ yarn start:dev
 ```
 
-Access the graphql playground through the link localhost:3000/graphql
-use sample query to calculate steps for water jug riddle
+Access the graphql playground through the link localhost:3000/graphql.
+Use sample query to calculate steps for water jug riddle:
 ```
 query getPath($pathInput: PathInput!) {
   getPath(pathInput: $pathInput) {
